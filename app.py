@@ -1,19 +1,18 @@
 import os
 
-import openai
-from dotenv import load_dotenv
+from openai import OpenAI
 from flask import Flask, jsonify, render_template, request, session
 
-# Load environment variables from .env file
-load_dotenv()
+
 
 # Create a Flask application instance
 app = Flask(__name__)
 # Generate a random secret key for the Flask application
 app.secret_key = os.urandom(24)
 # Set the OpenAI API key from the environment variable
-openai.api_key = os.environ["OPENAI_API_KEY"]
-
+client = OpenAI(
+api_key = ""
+)
 # Read the content of the "system_card.txt" file
 with open("system_card.txt", "r") as file:
     system = file.read()
@@ -39,18 +38,17 @@ def generate():
     # Append the system message from the "system_card.txt" file
     messages.append({"role": "system", "content": system})
 
-    # Call the OpenAI API to generate a response using the GPT-3.5-turbo model
-    response = openai.ChatCompletion.create(
+    # Call the OpenAI API to generate a response using the gpt-3.5-turbo Turbo model
+    response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=messages,
-        # max_tokens=50,
+        max_tokens=1000,
         n=1,
         temperature=1,
     )
-
     # Extract the generated AI message from the response
-    ai_message = response.choices[0].message["content"].strip()
-
+    ai_message = response.choices[0].message.content
+   
     # Return the AI message as a JSON response
     return jsonify(ai_message)
 
