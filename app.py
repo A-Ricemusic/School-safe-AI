@@ -34,17 +34,18 @@ def generate():
     history = data["history"]
 
     # Create a list of message dictionaries for the OpenAI API
-    messages = [{"role": msg["role"], "content": msg["content"]} for msg in history]
+    messages = [{"role": "system", "content": system}]
     # Append the system message from the "system_card.txt" file
-    messages.append({"role": "system", "content": system})
+    for msg in history:
+        messages.append({"role": msg["role"], "content": msg["content"]})
 
-    # Call the OpenAI API to generate a response using the gpt-3.5-turbo Turbo model
+    # Call the OpenAI API to generate a response using the gpt-4 
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4",
         messages=messages,
-        max_tokens=1000,
+        max_tokens=2000,
         n=1,
-        temperature=1,
+        temperature=0,
     )
     # Extract the generated AI message from the response
     ai_message = response.choices[0].message.content
