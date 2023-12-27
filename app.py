@@ -11,7 +11,7 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 # Set the OpenAI API key from the environment variable
 client = OpenAI(
-api_key = "enter string here"
+api_key = ""
 )
 # Read the content of the "system_card.txt" file
 with open("system_card.txt", "r") as file:
