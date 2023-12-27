@@ -32,7 +32,7 @@ def signup():
             db.session.commit()
             return redirect(url_for('login'))
         except Exception as e:
-            flash('Signup failed: ' + str(e))
+            flash('Signup failed')
     return render_template('signup.html')
 
 @app.route('/login', methods=['GET', 'POST'])
