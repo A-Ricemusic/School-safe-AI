@@ -9,7 +9,7 @@
     <script src="/static/index.js" defer></script>
 </head>
 <body>
-    <h1>Next Level Math Tutor</h1>
+    <h1>Next Level Tutor</h1>
     <div>
         {% with messages = get_flashed_messages() %}
         {% if messages %}
@@ -21,7 +21,7 @@
         {% endif %}
       {% endwith %}
     </div>
-    <button type="button">Click to log out <a href="/logout">Log Out</a></button>
+    <button type="button"><a href="/logout">Log Out</a></button>
     <div id="chat-container"></div>
     <form id="chat-form">
         <input type="text" id="message" name="message" required placeholder="Type your message...">

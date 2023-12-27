@@ -56,7 +56,7 @@ function addMessage(message, sender) {
 
 // Function to display the welcome message from the bot
 function displayWelcomeMessage() {
-    const welcomeMessage = "Hello! I'm a math tutor. How can I help you today?";
+    const welcomeMessage = "Hello! I'm a k-12 school tutor. How can I help you today?";
     addMessage(welcomeMessage, "bot");
 }
 
