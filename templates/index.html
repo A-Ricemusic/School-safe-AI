@@ -10,6 +10,17 @@
 </head>
 <body>
     <h1>Next Level Math Tutor</h1>
+    <div>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <ul class="flashes">
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+    </div>
     <div id="chat-container"></div>
     <form id="chat-form">
         <input type="text" id="message" name="message" required placeholder="Type your message...">

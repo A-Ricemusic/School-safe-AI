@@ -1,15 +1,13 @@
-import os
-
+from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
+from werkzeug.security import generate_password_hash, check_password_hash
 from openai import OpenAI
-from flask import Flask, jsonify, render_template, request, session
 
 
-
-# Create a Flask application instance
 app = Flask(__name__)
-# Generate a random secret key for the Flask application
-app.secret_key = os.urandom(24)
-# Set the OpenAI API key from the environment variable
+app.secret_key = 'password'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+db = SQLAlchemy(app)
 client = OpenAI(
 api_key = ""
 )
@@ -17,11 +15,47 @@ api_key = ""
 with open("system_card.txt", "r") as file:
     system = file.read()
 
-# Define the route for the root URL, rendering the index.html template
-@app.route("/")
-def index():
-    return render_template("index.html")
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(80), nullable=False)
 
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        try:
+            username = request.form['username']
+            password = request.form['password']
+            hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+            new_user = User(username=username, password=hashed_password)
+            db.session.add(new_user)
+            db.session.commit()
+            return redirect(url_for('login'))
+        except Exception as e:
+            flash('Signup failed: ' + str(e))
+    return render_template('signup.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username).first()
+        if user and check_password_hash(user.password, password):
+            session['username'] = user.username
+            return redirect(url_for('index'))
+        flash('Invalid username or password')
+    return render_template('login.html')
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('login'))
+
+@app.route('/')
+def index():
+    if 'username' in session:
+        return render_template('index.html')
+    return redirect(url_for('login'))
 
 # Define the route for generating a response using the OpenAI API
 # The route accepts POST requests
@@ -54,6 +88,7 @@ def generate():
     return jsonify(ai_message)
 
 
-# Start the Flask application, listening on all interfaces and port 8080
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)

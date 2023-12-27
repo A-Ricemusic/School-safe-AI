@@ -1,3 +1,5 @@
 Flask==2.1.1
 openai
 python-dotenv
+Flask-SQLAlchemy
+Werkzeug
