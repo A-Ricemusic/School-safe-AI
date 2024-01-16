@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from openai import OpenAI
+from models import db, User
 
 
 app = Flask(__name__)
@@ -14,11 +15,6 @@ api_key = "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"
 # Read the content of the "system_card.txt" file
 with open("system_card.txt", "r") as file:
     system = file.read()
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(80), nullable=False)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
