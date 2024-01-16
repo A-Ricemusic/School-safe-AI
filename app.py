@@ -1,8 +1,7 @@
-from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from openai import OpenAI
-from models import db, User
 
 
 app = Flask(__name__)
@@ -10,8 +9,15 @@ app.secret_key = 'password'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 db = SQLAlchemy(app)
 client = OpenAI(
-api_key = "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"
+api_key = ""
 )
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(80), nullable=False)
+
+
 # Read the content of the "system_card.txt" file
 with open("system_card.txt", "r") as file:
     system = file.read()
@@ -71,7 +77,7 @@ def generate():
 
     # Call the OpenAI API to generate a response using the gpt-4 
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=messages,
         max_tokens=2000,
         n=1,
