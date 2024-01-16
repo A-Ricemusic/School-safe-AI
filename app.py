@@ -9,7 +9,7 @@ app.secret_key = 'password'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 db = SQLAlchemy(app)
 client = OpenAI(
-api_key = ""
+api_key = "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"
 )
 # Read the content of the "system_card.txt" file
 with open("system_card.txt", "r") as file:
