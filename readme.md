@@ -1,3 +1,78 @@
+# School-Safe Tutoring AI
+
+A dedicated, school-safe AI tutor designed to help students understand their coursework rather than just providing the final answers. Using this AI, learners receive detailed explanations, clarifications, and gentle nudges in the right direction, all tailored to improve critical thinking and problem-solving skills.
+
+## Table of Contents
+- [About the AI](#about-the-ai)
+- [Features](#features)
+- [Getting Started](#getting-started)
+- [Technologies Used](#technologies-used)
+- [Contributing](#contributing)
+- [License](#license)
+
+## About the AI
+This AI serves as an educational assistant that supports students by guiding them through their questions. It does not simply provide the finished solution; instead, it explains concepts, offers hints, and encourages the student to arrive at their own understanding. The result is a stronger grasp of the material and greater confidence in their ability to tackle academic challenges.
+
+### Objective
+- Promote Understanding: Offer thorough, step-by-step explanations and clarifications.
+- Encourage Independence: Provide hints and insights rather than completing the work for the student.
+
+## Features
+- Contextual Assistance: Guidance tailored to the student’s current question or topic.
+- Non-Solution Answers: Constructive hints and reasoning without handing over the final answer.
+- Clear, Age-Appropriate Language: Accessible explanations suitable for various educational levels.
+- Interactive Support: Encourages follow-up questions for deeper exploration and comprehension.
+- Respectful and Inclusive: Maintains a positive, respectful tone suitable for a school environment.
+
+## Getting Started
+
+### Prerequisites
+- Python 3.8+ installed on your system
+- pip (included with most Python installations)
+- An OpenAI API Key (required to access the model’s capabilities)
+- Flask (a Python microframework for serving the application)
+
+### Installation & Run
+1. Clone the repository:
+   `git clone https://github.com/your-username/school-safe-tutoring-ai.git`
+   `cd school-safe-tutoring-ai`
+
+2. Install dependencies:
+   `pip install -r requirements.txt`
+
+3. Set your OpenAI API Key:
+   `export OPENAI_API_KEY=your_openai_api_key`
+
+4. Run the Flask app:
+   `flask run`
+
+After starting the server, open your browser and navigate to:
+`http://localhost:5000`
+
+## Technologies Used
+- Python & Flask: Serving the application and managing routing
+- OpenAI API: Powering the language understanding and response generation
+- HTML/CSS/JavaScript: Delivering a clean, accessible web interface
+
+## Contributing
+Contributions are always welcome! To contribute:
+1. Fork this repository on GitHub.
+2. Create a new branch for your feature or bug fix.
+3. Make your changes and commit them with a clear, descriptive message.
+4. Push to your fork and open a Pull Request, explaining your changes.
+
+Your input helps make the tutoring experience more effective and engaging.
+
+## License
+This project is licensed under the MIT License. Please review the license for details on permitted usage and distribution.
+
+---
+
+The app was created using the Flask API. It was mainly built in Python and leverages the OpenAI API for its intelligent responses.
+
+
+### Open AI Set up Documentation provided for more instructions/clarity
+
 # ChatGPT Web Application
 
 This is a simple web application that uses OpenAI's ChatGPT to generate responses based on user input. The application is built using Flask (Python) as the backend and JavaScript for the frontend.
