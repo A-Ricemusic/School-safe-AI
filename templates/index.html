@@ -4,35 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Next Level Math Tutor</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/style.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/chat.css">
     <script src="/static/index.js" defer></script>
 </head>
 <body>
-    <h1>Next Level Tutor</h1>
-    <div>
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-          <ul class="flashes">
-          {% for message in messages %}
-            <li>{{ message }}</li>
-          {% endfor %}
-          </ul>
-        {% endif %}
-      {% endwith %}
+    <div class="chat-wrapper">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h1>Next Level Tutor</h1>
+                <button class="logout-btn" onclick="window.location.href='/logout'">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                        <div class="flash-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+
+            <div id="chat-container" class="messages-container"></div>
+
+            <form id="chat-form" class="chat-form">
+                <div class="input-group">
+                    <i class="fas fa-pencil-alt"></i>
+                    <input type="text" 
+                           id="message" 
+                           name="message" 
+                           required 
+                           placeholder="Type your message..."
+                           autocomplete="off">
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Send</span>
+                    </button>
+                    <button type="button" id="clear-history" class="clear-btn">
+                        <i class="fas fa-trash"></i>
+                        <span>Clear</span>
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-    <button type="button"><a href="/logout">Log Out</a></button>
-    <div id="chat-container"></div>
-    <form id="chat-form">
-        <input type="text" id="message" name="message" required placeholder="Type your message...">
-        <button type="submit">Send</button>
-        <button type="button" id="clear-history">Clear History</button>
-
-    </form>  
-
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Rubik+Doodle+Shadow&display=swap');
-    </style>
-      
 </body>
 </html>
