@@ -69,7 +69,7 @@ def generate():
     user_message = data["message"]
     history = data["history"]
 
-    # Create a list of message dictionaries for the OpenAI API
+    # Create a list of message dictionaries for the OpenAI AP
     messages = [{"role": "system", "content": system}]
     # Append the system message from the "system_card.txt" file
     for msg in history:
