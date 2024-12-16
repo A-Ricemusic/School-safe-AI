@@ -1,24 +1,23 @@
-// signup.js (for signup functionality)
 document.addEventListener('DOMContentLoaded', function() {
     const signupForm = document.querySelector('.signup-form');
     
     if (signupForm) {
-        // Email validation
+        // Password validation
         signupForm.addEventListener('submit', function(e) {
-            const email = document.getElementById('email').value;
-            const confirmEmail = document.getElementById('confirm_email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
             
-            if (email !== confirmEmail) {
+            if (password !== confirmPassword) {
                 e.preventDefault();
-                alert('Email addresses do not match!');
+                alert('Passwords do not match!');
             }
         });
 
-        // Password visibility toggle
-        const togglePassword = document.querySelector('.toggle-password');
-        if (togglePassword) {
-            togglePassword.addEventListener('click', function() {
-                const passwordInput = document.getElementById('password');
+        // Password visibility toggle for both password fields
+        const togglePasswordButtons = document.querySelectorAll('.toggle-password');
+        togglePasswordButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const passwordInput = this.previousElementSibling;
                 const icon = this;
                 
                 if (passwordInput.type === 'password') {
@@ -31,6 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     icon.classList.add('fa-eye-slash');
                 }
             });
-        }
+        });
     }
 });
