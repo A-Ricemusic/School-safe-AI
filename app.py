@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 from models import db, User
 from utils.email import mail, send_verification_email
+from openai import OpenAI  # Add this import
 import os
 from dotenv import load_dotenv
 
