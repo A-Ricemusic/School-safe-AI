@@ -1,31 +1,19 @@
+# app.py
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from openai import OpenAI
-import re
+from models import db, User, init_db
 
 app = Flask(__name__)
 app.secret_key = 'password'  # In production, use a secure secret key
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+
+# Initialize extensions
+db.init_app(app)
 client = OpenAI(
     api_key = ""  # Add your OpenAI API key here
 )
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(200), nullable=False)
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
-    
-    def __repr__(self):
-        return f'<User {self.email}>'
-
-# Email validation function
-def is_valid_email(email):
-    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    return re.match(pattern, email) is not None
 
 # Read the content of the "system_card.txt" file
 try:
@@ -44,7 +32,7 @@ def signup():
             confirm_password = request.form['confirm_password']
 
             # Validate email format
-            if not is_valid_email(email):
+            if not User.is_valid_email(email):
                 flash('Please enter a valid email address')
                 return render_template('signup.html')
 
@@ -58,8 +46,8 @@ def signup():
                 flash('Email already registered')
                 return render_template('signup.html')
 
-            # Validate password length
-            if len(password) < 6:
+            # Validate password
+            if not User.validate_password(password):
                 flash('Password must be at least 6 characters long')
                 return render_template('signup.html')
 
@@ -141,12 +129,6 @@ def generate():
         print(f"Error generating response: {str(e)}")
         return jsonify({'error': 'Failed to generate response'}), 500
 
-# Create database tables
-def init_db():
-    with app.app_context():
-        db.create_all()
-        print("Database initialized successfully!")
-
 if __name__ == "__main__":
-    init_db()
+    init_db(app)
     app.run(debug=True)
