@@ -1,41 +1,25 @@
 # app.py
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
+from flask_mail import Mail
 from werkzeug.security import generate_password_hash, check_password_hash
-from openai import OpenAI
+from datetime import datetime, timedelta
 from models import db, User
-from datetime import datetime
+from utils.email import mail, send_verification_email
 import os
 
 app = Flask(__name__)
-app.secret_key = os.getenv('FLASK_SECRET_KEY', 'password')  # Better to use environment variable
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# Existing configurations...
+
+# Email configuration
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Or your SMTP server
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 
 # Initialize extensions
 db.init_app(app)
-
-# Ensure the instance folder exists
-if not os.path.exists('instance'):
-    os.makedirs('instance')
-
-# Initialize OpenAI client
-client = OpenAI(
-    api_key = os.getenv('OPENAI_API_KEY', '')
-)
-
-# Read system card
-try:
-    with open("system_card.txt", "r") as file:
-        system = file.read()
-except FileNotFoundError:
-    system = "You are a helpful AI assistant."
-    print("Warning: system_card.txt not found. Using default system message.")
-
-@app.route('/')
-def index():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    return render_template('index.html')
+mail.init_app(app)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -45,38 +29,53 @@ def signup():
             password = request.form['password']
             confirm_password = request.form['confirm_password']
 
-            # Validate email format
-            if not User.is_valid_email(email):
-                flash('Please enter a valid email address')
-                return render_template('signup.html')
-
-            # Validate password
-            if not User.validate_password(password):
-                flash('Password must be at least 6 characters long')
-                return render_template('signup.html')
-
-            if password != confirm_password:
-                flash('Passwords do not match')
-                return render_template('signup.html')
-
-            if User.query.filter_by(email=email).first():
-                flash('Email already registered')
-                return render_template('signup.html')
+            # ... existing validation code ...
 
             hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
             new_user = User(email=email, password=hashed_password)
+            new_user.generate_verification_token()
+            
             db.session.add(new_user)
             db.session.commit()
             
-            flash('Account created successfully! Please login.')
+            # Send verification email
+            send_verification_email(new_user)
+            
+            flash('Account created successfully! Please check your email to verify your account.', 'success')
             return redirect(url_for('login'))
             
         except Exception as e:
             db.session.rollback()
             print(f"Error during signup: {str(e)}")
-            flash('An error occurred during signup. Please try again.')
+            flash('An error occurred during signup. Please try again.', 'error')
             
     return render_template('signup.html')
+
+@app.route('/verify-email/<token>')
+def verify_email(token):
+    try:
+        user = User.query.filter_by(verification_token=token).first()
+        
+        if not user:
+            flash('Invalid verification link.', 'error')
+            return redirect(url_for('login'))
+            
+        if user.token_expiry < datetime.utcnow():
+            flash('Verification link has expired. Please request a new one.', 'error')
+            return redirect(url_for('login'))
+            
+        user.is_verified = True
+        user.verification_token = None
+        user.token_expiry = None
+        db.session.commit()
+        
+        flash('Email verified successfully! You can now log in.', 'success')
+        return redirect(url_for('login'))
+        
+    except Exception as e:
+        print(f"Error during email verification: {str(e)}")
+        flash('An error occurred during verification. Please try again.', 'error')
+        return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -88,60 +87,20 @@ def login():
             user = User.query.filter_by(email=email).first()
             
             if user and check_password_hash(user.password, password):
+                if not user.is_verified:
+                    flash('Please verify your email before logging in.', 'error')
+                    return render_template('login.html')
+                    
                 session['user_id'] = user.id
                 session['email'] = user.email
-                
-                # Update last login time
                 user.last_login = datetime.utcnow()
                 db.session.commit()
-                
                 return redirect(url_for('index'))
             
-            flash('Invalid email or password')
+            flash('Invalid email or password', 'error')
             
         except Exception as e:
             print(f"Error during login: {str(e)}")
-            flash('An error occurred. Please try again.')
+            flash('An error occurred. Please try again.', 'error')
             
     return render_template('login.html')
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('login'))
-
-@app.route("/generate", methods=["POST"])
-def generate():
-    if 'user_id' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-        
-    try:
-        data = request.get_json()
-        user_message = data["message"]
-        history = data["history"]
-
-        messages = [{"role": "system", "content": system}]
-        for msg in history:
-            messages.append({"role": msg["role"], "content": msg["content"]})
-        messages.append({"role": "user", "content": user_message})
-
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=messages,
-            max_tokens=2000,
-            n=1,
-            temperature=0,
-        )
-        
-        ai_message = response.choices[0].message.content
-        return jsonify(ai_message)
-        
-    except Exception as e:
-        print(f"Error generating response: {str(e)}")
-        return jsonify({'error': 'Failed to generate response'}), 500
-
-if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-        print("Database tables created if they didn't exist!")
-    app.run(debug=True)

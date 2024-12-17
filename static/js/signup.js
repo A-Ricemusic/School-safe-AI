@@ -1,15 +1,37 @@
+// static/js/signup.js
 document.addEventListener('DOMContentLoaded', function() {
     const signupForm = document.querySelector('.signup-form');
     
     if (signupForm) {
-        // Password validation
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm_password');
+        
+        // Real-time password match validation
+        confirmPasswordInput.addEventListener('input', function() {
+            if (this.value !== passwordInput.value) {
+                this.setCustomValidity('Passwords do not match');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        // Password validation on form submit
         signupForm.addEventListener('submit', function(e) {
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirm_password').value;
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
             
+            // Check if passwords match
             if (password !== confirmPassword) {
                 e.preventDefault();
                 alert('Passwords do not match!');
+                return;
+            }
+
+            // Check password length
+            if (password.length < 6) {
+                e.preventDefault();
+                alert('Password must be at least 6 characters long!');
+                return;
             }
         });
 
