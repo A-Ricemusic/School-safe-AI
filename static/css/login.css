@@ -1,3 +1,4 @@
+/* login.css */
 * {
     margin: 0;
     padding: 0;
@@ -26,6 +27,13 @@ body {
     animation: fadeInUp 0.8s ease-out forwards;
 }
 
+.logo {
+    font-size: 4rem;
+    color: #4A90E2;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
 .login-header {
     text-align: center;
     margin-bottom: 2.5rem;
@@ -47,26 +55,61 @@ body {
     margin-bottom: 1.5rem;
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: #555;
-    font-size: 0.9rem;
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
 }
 
-.form-group input {
+.input-group.focused {
+    border-color: #4A90E2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.input-group i {
+    position: absolute;
+    left: 1rem;
+    color: #95a5a6;
+    z-index: 1;
+}
+
+.input-group .toggle-password {
+    position: absolute;
+    left: auto;
+    right: 1rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    z-index: 1;
+}
+
+.input-group .toggle-password:hover {
+    color: #4A90E2;
+}
+
+.input-group input {
     width: 100%;
-    padding: 1rem;
+    padding: 1rem 2.5rem;
     border: 2px solid #e0e0e0;
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s ease;
 }
 
-.form-group input:focus {
+.input-group input:focus {
     outline: none;
     border-color: #4A90E2;
     box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.input-group input.error {
+    border-color: #ff6b6b !important;
+    background-color: rgba(255, 107, 107, 0.05);
+}
+
+.input-group input[type="password"],
+.input-group input[type="text"] {
+    padding-right: 2.5rem;
 }
 
 .submit-btn {
@@ -80,26 +123,42 @@ body {
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
-.submit-btn:hover {
+.submit-btn:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
 }
 
-.submit-btn:active {
+.submit-btn:active:not(:disabled) {
     transform: translateY(0);
 }
 
-.flashes {
-    list-style: none;
+.submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none !important;
+    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+}
+
+.flash-messages {
+    margin-bottom: 1.5rem;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.flash-message {
     background: #ff6b6b;
     color: white;
     padding: 1rem;
     border-radius: 10px;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    animation: fadeInUp 0.5s ease-out forwards;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .signup-link {
@@ -126,6 +185,15 @@ body {
     text-decoration: underline;
 }
 
+.fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -137,7 +205,11 @@ body {
     }
 }
 
-/* Responsive Design */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 @media (max-width: 480px) {
     .login-container {
         padding: 2rem;
@@ -146,5 +218,9 @@ body {
 
     .login-header h2 {
         font-size: 2rem;
+    }
+
+    .logo {
+        font-size: 3.5rem;
     }
 }
