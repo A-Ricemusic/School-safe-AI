@@ -3,3 +3,4 @@ openai
 python-dotenv
 Flask-SQLAlchemy
 Werkzeug
+flask-mail
