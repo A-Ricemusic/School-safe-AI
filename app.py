@@ -3,10 +3,11 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 from werkzeug.security import generate_password_hash, check_password_hash
 from openai import OpenAI
 from models import db, User
+from datetime import datetime
 import os
 
 app = Flask(__name__)
-app.secret_key = 'password'  # Change this to a secure secret key in production
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'password')  # Better to use environment variable
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -19,7 +20,7 @@ if not os.path.exists('instance'):
 
 # Initialize OpenAI client
 client = OpenAI(
-    api_key = os.getenv('OPENAI_API_KEY', '')  # Get API key from environment variable
+    api_key = os.getenv('OPENAI_API_KEY', '')
 )
 
 # Read system card
@@ -43,6 +44,16 @@ def signup():
             email = request.form['email']
             password = request.form['password']
             confirm_password = request.form['confirm_password']
+
+            # Validate email format
+            if not User.is_valid_email(email):
+                flash('Please enter a valid email address')
+                return render_template('signup.html')
+
+            # Validate password
+            if not User.validate_password(password):
+                flash('Password must be at least 6 characters long')
+                return render_template('signup.html')
 
             if password != confirm_password:
                 flash('Passwords do not match')
@@ -79,6 +90,11 @@ def login():
             if user and check_password_hash(user.password, password):
                 session['user_id'] = user.id
                 session['email'] = user.email
+                
+                # Update last login time
+                user.last_login = datetime.utcnow()
+                db.session.commit()
+                
                 return redirect(url_for('index'))
             
             flash('Invalid email or password')
@@ -126,7 +142,6 @@ def generate():
 
 if __name__ == "__main__":
     with app.app_context():
-        # Only create tables if they don't exist
         db.create_all()
         print("Database tables created if they didn't exist!")
     app.run(debug=True)

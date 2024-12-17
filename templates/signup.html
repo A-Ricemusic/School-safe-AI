@@ -33,7 +33,7 @@
             {% endif %}
         {% endwith %}
 
-        <form method="POST" action="/signup" class="signup-form">
+        <form method="POST" action="/signup" class="signup-form" id="signupForm">
             <div class="form-group">
                 <div class="input-group">
                     <i class="fas fa-envelope"></i>
@@ -41,7 +41,10 @@
                            id="email" 
                            name="email" 
                            placeholder="Email address"
+                           pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                           title="Please enter a valid email address"
                            required>
+                    <span class="error-message"></span>
                 </div>
             </div>
             <div class="form-group">
@@ -51,8 +54,11 @@
                            id="password" 
                            name="password" 
                            placeholder="Password"
+                           minlength="6"
+                           title="Password must be at least 6 characters long"
                            required>
                     <i class="fas fa-eye-slash toggle-password"></i>
+                    <span class="error-message"></span>
                 </div>
             </div>
             <div class="form-group">
@@ -62,11 +68,13 @@
                            id="confirm_password" 
                            name="confirm_password" 
                            placeholder="Confirm password"
+                           minlength="6"
                            required>
                     <i class="fas fa-eye-slash toggle-password"></i>
+                    <span class="error-message"></span>
                 </div>
             </div>
-            <button type="submit" class="submit-btn">
+            <button type="submit" class="submit-btn" id="submitBtn">
                 <span>Create Account</span>
                 <i class="fas fa-arrow-right"></i>
             </button>
