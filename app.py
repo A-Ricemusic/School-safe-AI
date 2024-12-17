@@ -6,20 +6,59 @@ from datetime import datetime, timedelta
 from models import db, User
 from utils.email import mail, send_verification_email
 import os
+from dotenv import load_dotenv
 
-app = Flask(__name__)
-# Existing configurations...
+# Load environment variables
+load_dotenv()
 
-# Email configuration
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Or your SMTP server
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+def create_app():
+    app = Flask(__name__)
+    
+    # Basic Configuration
+    app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev_key')  # Change in production
+    
+    # Database Configuration
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'instance', 'users.db')
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
+    # Email Configuration
+    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+    app.config['MAIL_PORT'] = 587
+    app.config['MAIL_USE_TLS'] = True
+    app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+    app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+    
+    # Ensure instance folder exists
+    if not os.path.exists('instance'):
+        os.makedirs('instance')
+    
+    # Initialize extensions
+    db.init_app(app)
+    mail.init_app(app)
+    
+    return app
 
-# Initialize extensions
-db.init_app(app)
-mail.init_app(app)
+app = create_app()
+
+# Initialize OpenAI client
+client = OpenAI(
+    api_key = os.getenv('OPENAI_API_KEY', '')
+)
+
+# Read system card
+try:
+    with open("system_card.txt", "r") as file:
+        system = file.read()
+except FileNotFoundError:
+    system = "You are a helpful AI assistant."
+    print("Warning: system_card.txt not found. Using default system message.")
+
+@app.route('/')
+def index():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    return render_template('index.html')
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -104,3 +143,10 @@ def login():
             flash('An error occurred. Please try again.', 'error')
             
     return render_template('login.html')
+
+
+if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
+        print("Database tables created if they didn't exist!")
+    app.run(debug=True)
